@@ -31,40 +31,89 @@ class Experiment(BaseModel):
     model: str
     gpu: str
     batch_size:int = Field(default=1)
-    file: str
+    video_file: str
     frames: list[int] | None = Field(default=None)
     n_frames: int
-    processing_time: float | int
-    fps: float
+    
+    pre_processing_time: float | int
+    inference_time: float | int
+    post_processing_time: float | int
+    video_processing_time: float | int
+    
     start_time: str
     end_time: str
-    filename: str 
     
-   
+    record_file: str 
+    
+    @property
+    def pre_processing_fps(self):
+        return self.n_frames/self.pre_processing_time
+
+    @property
+    def inference_fps(self):
+        return self.n_frames/self.inference_time
+    
+    @property
+    def post_processing_fps(self):
+        return self.n_frames/self.post_processing_time
+    
+    @property
+    def video_fps(self):
+        return self.n_frames/self.video_processing_time
+    
     @property
     def row(self):
         return (
             self.model,
             self.gpu,
-            self.file,
+            self.video_file,
             self.batch_size,
             self.n_frames,
-            self.processing_time,
-            self.fps,
+            
+            self.pre_processing_fps,
+            self.inference_fps,
+            self.post_processing_fps,
+            self.video_fps,
+            
+            self.pre_processing_time,
+            self.inference_time,
+            self.post_processing_time,
+            self.video_processing_time,
+    
             self.start_time,
             self.end_time,
-            self.filename
+            self.record_file
         )
     
     @property
     def columns(self):
-        return ("model", "gpu", "file", "batch_size", "n_frames", "processing_time", "fps", "start_time", "end_time", "result_file")
+        return (
+            "model", 
+            "gpu", 
+            "video_file", 
+            "batch_size", 
+            "n_frames", 
+            
+            "pre_processing_fps",
+            "inference_fps",
+            "post_processing_fps",
+            "video_fps",
+            
+            "pre_processing_time",
+            "inference_time",
+            "post_processing_time",
+            "video_processing_time",
+
+            "start_time",
+            "end_time",
+            "record_file",
+        )
     
     def log(self):
-        logger.info(f"{self.file} | frames={self.n_frames} | delta={self.processing_time} | fps={self.fps}")
+        logger.info(f"{self.video_file} | frames={self.n_frames} | model_fps={self.inference_fps} | inference_time={self.inference_time} | preprocess_time={self.pre_processing_time}")
         
     def save(self):
-        with open(f"{self.filename}", 'w') as f:
+        with open(f"{self.record_file}", 'w') as f:
             json.dump(self.model_dump(),f, indent=2)
     
 
@@ -83,10 +132,7 @@ class GDino(Experiment):
     def columns(self):
         _columns = super().columns
         return _columns + ("prompt", "data") 
-    
-    def log(self):
-        logger.info(f"{self.file} | frames={self.n_frames} | delta={self.processing_time} | fps={self.fps}")
-    
+        
 
 class Retina(Experiment):
     data: Detections
@@ -103,3 +149,6 @@ class Retina(Experiment):
 
 class OwlVit(GDino):
     pass
+
+class Sample(BaseModel):
+    data: Detections
