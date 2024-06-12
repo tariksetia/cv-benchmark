@@ -18,7 +18,7 @@ def convert_model_detection(detections: ModelDetection) -> list[Detection]:
 
 def get_file_name(base_dir, time, model, file):
     vid_file = file.split("/")[-1]
-    fname=f"exp-{model}-{get_gpu_name()}-{vid_file}-{now.day}-{now.hour}-{now.minute}-{now.second}.csv"
+    fname=f"exp-{model}-{get_gpu_name()}-{vid_file}-{now.day}-{now.hour}-{now.minute}-{now.second}.json"
     return f"{base_dir}/{fname}"
 
 def get_gpu_name():
