@@ -51,7 +51,7 @@ def read_vid_batch(video_path, frame_ids=None, batch_size=1):
     
     frame_id = 0
     frame_index = 0
-    batch = []
+    batch = {}
 
     while True:
         ret, frame = cap.read()
@@ -59,7 +59,7 @@ def read_vid_batch(video_path, frame_ids=None, batch_size=1):
             break
 
         if frame_ids is None or (frame_index < len(frame_ids) and frame_id == frame_ids[frame_index]):
-            batch.append((frame_id, frame))
+            batch[frame_id] = frame
             if frame_ids is not None:
                 frame_index += 1
 
@@ -67,7 +67,7 @@ def read_vid_batch(video_path, frame_ids=None, batch_size=1):
 
         if len(batch) == batch_size:
             yield batch
-            batch = []
+            batch = {}
 
         # Early termination if all specified frames are processed
         if frame_ids is not None and frame_index >= len(frame_ids):
