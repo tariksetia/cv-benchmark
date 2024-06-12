@@ -4,14 +4,14 @@ from datetime import datetime
 now = datetime.now()
 
 def convert_model_detection(detections: ModelDetection) -> list[Detection]:
-    boxes = detections['boxes'].detach().tolist()
-    scores = detections['scores'].detach().tolist()
+    boxes = detections['boxes'].detach().to('cpu').tolist()
+    scores = detections['scores'].detach().to('cpu').tolist()
     labels = detections['labels']
     return [
         Detection(
             box=box,
             score=score,
-            label=label if isinstance(label,str) else str(int(label.detach()))
+            label=label if isinstance(label,str) else str(int(label.detach().to('cpu')))
         )
         for box, score, label in zip(boxes,scores,labels)
     ]
